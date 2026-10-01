@@ -1,57 +1,37 @@
 import streamlit as st
 
-st.set_page_config(page_title="Französisch KI", page_icon="🇫🇷", layout="centered")
-st.title("🇫🇷 Französisch KI")
-st.markdown("### Deine ausführliche Grammatik-Erklärung")
+st.set_page_config(page_title="Französisch MEGA KI", page_icon="🇫🇷", layout="centered")
+st.title("🇫🇷 Französisch MEGA KI")
+st.markdown("**Die ganze Grammatik - ausführlich erklärt!**")
 st.write("---")
 
-thema = st.selectbox(
-    "Welches Thema brauchst du?",
-    ["Passé composé", "Imparfait", "Articles", "être und avoir", "Verneinung", "Futur", "Fragen"]
-)
+thema = st.selectbox("Was willst du lernen?", [
+    "--- WÄHLE THEMA ---",
+    "1. Pronoms d'objet (le, la, lui, leur, y, en) - OBJEKTE",
+    "2. COD & COI - Objekte",
+    "3. Passé composé",
+    "4. Imparfait",
+    "5. Imparfait vs Passé composé",
+    "6. Articles (le, la, un, une, du, de la)",
+    "7. être & avoir komplett",
+    "8. Pronomen (je, me, moi, etc.)",
+    "9. Adjektive - Angleichung",
+    "10. Verneinung (ne...pas, plus, jamais)",
+    "11. Futur simple & proche",
+    "12. Plus-que-parfait",
+    "13. Subjonctif",
+    "14. Fragen bilden",
+    "15. Relativpronomen (qui, que, où)"
+])
 
-if st.button("Ausführlich erklären lassen"):
+if st.button("🚀 Ausführlich erklären"):
     st.write("---")
     
-    if thema == "Passé composé":
-        st.subheader("📚 Das Passé composé - MEGA ausführlich")
+    if "Objekte" in thema or "1." in thema:
+        st.subheader("🎯 OBJEKTE - Pronoms d'objet (WICHTIG!)")
         st.markdown("""
-        **1. Was ist das?** Die wichtigste Vergangenheit. Wie Deutsch "Ich HABE gegessen".
+        **Das vermissen 90% der Schüler!**
 
-        **2. Formel:** **avoir oder être im Präsens + Participe passé**
-
-        **3. avoir oder être?**
-        - **90% mit AVOIR:** manger, faire, voir
-        - **Nur 14 mit ÊTRE:** aller, venir, arriver, partir, entrer, sortir, monter, rester, tomber, naître, mourir...
-
-        **4. Participe passé bilden:**
-        - -er -> -é: mangé
-        - -ir -> -i: fini
-        - -re -> -u: vendu
-        - Unregelmäßig: fait, pris, vu, été, eu
-
-        **5. Beispiele:**
-        J'ai mangé une pizza.
-        Je suis allé au cinéma.
-
-        **ACHTUNG:** Bei être angleichen! Elle est allée.
-        """)
-
-    elif thema == "Articles":
-        st.subheader("📚 Les Articles")
-        st.markdown("""
-        **le** männlich: le garçon
-        **la** weiblich: la fille
-        **l'** vor Vokal: l'école
-        **les** Plural für alle
-        
-        **un** männlich, **une** weiblich, **des** Plural
-        
-        **Merksatz:** Lerne immer LA table, nicht nur table!
-        """)
-
-    else:
-        st.subheader(f"📚 {thema}")
-        st.info("Ausführliche Erklärung kommt noch! Sag mir welches du brauchst!")
-
-    st.success("Fertig!")
+        **A) COD - Akkusativ (WEN? WAS?)**
+        Ersetzt das direkte Objekt.
+        - **le** ihn/es
