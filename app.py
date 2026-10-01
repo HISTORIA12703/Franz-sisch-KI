@@ -1,263 +1,206 @@
 import streamlit as st
+import requests, urllib.parse
 
-st.set_page_config(page_title="5 Sprachen KI", page_icon="🌍")
-st.title("🌍 5 SPRACHEN MEGA KI")
-st.write("Alle mit voller Grammatik + Vokabeln")
-st.write("---")
+st.set_page_config(page_title="Lern App", page_icon="📚", layout="wide")
 
-sprache = st.selectbox("1. Sprache:", [
-    "Französisch",
-    "Latein",
-    "Spanisch - VOLL",
-    "Italienisch - VOLL",
-    "Deutsch"
-])
+st.markdown("""
+<style>
+.main-title { text-align: center; font-size: 42px; font-weight: bold; color: #2E86AB; }
+.search-box { background-color: #f0f7ff; padding: 25px; border-radius: 15px; border: 2px solid #2E86AB; margin-bottom: 20px; }
+.history-box { background-color: #fff3cd; padding: 20px; border-radius: 15px; border: 2px solid #ffc107; margin: 15px 0; }
+.result-box { background-color: #e8f5e9; padding: 15px; border-radius: 10px; border-left: 5px solid #4caf50; margin: 10px 0; }
+.stButton > button { width: 100%; background-color: white; color: #2E86AB; border: 2px solid #2E86AB; border-radius: 10px; padding: 12px; font-weight: bold; min-height: 50px; }
+.stButton > button:hover { background-color: #2E86AB; color: white; }
+</style>
+""", unsafe_allow_html=True)
 
-if "Französisch" in sprache:
-    thema = st.selectbox("2. Thema:", [
-        "Pronomen ALLE",
-        "Direkte und Indirekte Rede",
-        "le la lui y en",
-        "Zeiten Futur Passe Imparfait",
-        "VOKABELN",
-        "Basics Articles etre"
-    ])
-elif "Spanisch" in sprache or "Italienisch" in sprache:
-    thema = st.selectbox("2. Thema:", [
-        "Pronomen ALLE mit Wann/Wie",
-        "Direkte und Indirekte Rede",
-        "Objektpronomen lo le ci ne",
-        "Zeiten - Futur Vergangenheit Subjuntivo",
-        "Ser Estar / Essere Avere + Por Para",
-        "VOKABELN TOP 100",
-        "Basics Artikel Verneinung"
-    ])
-else:
-    thema = st.selectbox("2. Thema:", [
-        "Pronomen",
-        "Direkte und Indirekte Rede",
-        "Grammatik Basics",
-        "VOKABELN"
-    ])
+st.markdown('<div class="main-title">📚 Lern App - Mit Internet Fakten</div>', unsafe_allow_html=True)
+st.markdown('<div class="search-box">', unsafe_allow_html=True)
+st.markdown("### 🔍 Wonach möchtest du suchen? (Google + Wikipedia + Alles)")
+thema = st.text_input("", placeholder="z.B. Adolf Hitler, USA, Atombombe, Fotosynthese, y en, ser estar, Pythagoras, DDR, Mauer...", label_visibility="collapsed", key="haupt")
+st.markdown('</div>', unsafe_allow_html=True)
 
-if st.button("Erklären"):
+def multi_suche(thema):
+    ergebnisse = []
+    headers = {'User-Agent': 'LernApp/1.0 Schulprojekt'}
+
+    # 1. Wikipedia DE
+    try:
+        enc = urllib.parse.quote(thema.replace(" ", "_"))
+        r = requests.get(f"https://de.wikipedia.org/api/rest_v1/page/summary/{enc}", headers=headers, timeout=5)
+        if r.status_code == 200:
+            d = r.json()
+            if 'extract' in d:
+                ergebnisse.append({"quelle": "Wikipedia DE", "titel": d.get("title"), "text": d.get("extract"), "link": d.get("content_urls", {}).get("desktop", {}).get("page", "")})
+    except:
+        pass
+
+    # 2. Wikipedia EN für mehr Fakten (USA etc)
+    try:
+        enc_en = urllib.parse.quote(thema.replace(" ", "_"))
+        r_en = requests.get(f"https://en.wikipedia.org/api/rest_v1/page/summary/{enc_en}", headers=headers, timeout=5)
+        if r_en.status_code == 200:
+            d_en = r_en.json()
+            if 'extract' in d_en and d_en.get("title") not in [x["titel"] for x in ergebnisse]:
+                ergebnisse.append({"quelle": "Wikipedia EN", "titel": d_en.get("title"), "text": d_en.get("extract"), "link": d_en.get("content_urls", {}).get("desktop", {}).get("page", "")})
+    except:
+        pass
+
+    # 3. Wikipedia Suche (falls direkter Artikel nicht gefunden)
+    if not ergebnisse:
+        try:
+            search_url = f"https://de.wikipedia.org/w/api.php?action=opensearch&search={thema}&limit=3&namespace=0&format=json"
+            r2 = requests.get(search_url, headers=headers, timeout=5)
+            if r2.status_code == 200:
+                res = r2.json()
+                if len(res) > 1 and res[1]:
+                    for name in res[1][:2]:
+                        enc2 = urllib.parse.quote(name.replace(" ", "_"))
+                        r3 = requests.get(f"https://de.wikipedia.org/api/rest_v1/page/summary/{enc2}", headers=headers, timeout=5)
+                        if r3.status_code == 200:
+                            d2 = r3.json()
+                            if 'extract' in d2:
+                                ergebnisse.append({"quelle": "Wikipedia Suche", "titel": d2.get("title"), "text": d2.get("extract"), "link": d2.get("content_urls", {}).get("desktop", {}).get("page", "")})
+        except:
+            pass
+
+    # 4. DuckDuckGo (wie Google - liefert Fakten aus vielen Quellen)
+    try:
+        ddg_url = f"https://api.duckduckgo.com/?q={urllib.parse.quote(thema)}&format=json&pretty=1&no_html=1&skip_disambig=1"
+        r_ddg = requests.get(ddg_url, headers=headers, timeout=5)
+        if r_ddg.status_code == 200:
+            d_ddg = r_ddg.json()
+            if d_ddg.get("AbstractText"):
+                ergebnisse.append({"quelle": f"DuckDuckGo / {d_ddg.get('AbstractSource','Web')}", "titel": d_ddg.get("Heading", thema), "text": d_ddg.get("AbstractText"), "link": d_ddg.get("AbstractURL","")})
+            # Related Topics
+            if d_ddg.get("RelatedTopics"):
+                for topic in d_ddg["RelatedTopics"][:2]:
+                    if isinstance(topic, dict) and topic.get("Text"):
+                        ergebnisse.append({"quelle": "DuckDuckGo Fakt", "titel": topic.get("Text")[:50]+"...", "text": topic.get("Text"), "link": topic.get("FirstURL","")})
+    except:
+        pass
+
+    return ergebnisse
+
+# FÄCHER LOKAL RICHTIG
+faecher = {
+"Französisch": "LE=ihn/es OHNE a Je LE mange LA=sie Je LA vois LES=sie Plural LUI=ihm/ihr MIT a Person Je parle À Marie -> Je LUI parle LEUR=ihnen Y=dort Ort à+Sache Je vais À Paris -> J'Y vais J'Y pense Sache! EN=davon de/du/des Zahl J'EN veux J'EN ai 3 REIHENFOLGE me te se nous vous + le la les + lui leur + y + en + VERB",
+"Spanisch": "SE LO DOY! LE+LO->SE! SER=WAS IST permanent Soy Juan ESTAR=WO WIE GERADE Estoy en casa POR=Grund Durch Dauer PARA=Ziel Zweck Empfänger",
+"Englisch": "Present I go he goes Past I went Perfect I have gone Future will If Type0 boils Type1 If I GO I WILL Type2 If I WENT I WOULD Type3 If I HAD GONE I WOULD HAVE GONE Passive IS MADE",
+"Italienisch": "ci=y ne=en CI vado NE voglio glielo Glielo do ESSERE permanent STARE Ort Zustand gerade Sto a casa Sto mangiando",
+"Latein": "5 Kasus Nom Gen Dat Akk Abl AcI Dico eum venire Gerundium amandum PPA amans PPP amatus",
+"Deutsch": "Konjunktiv I sei habe solle Wenn I=Indikativ dann II hätten",
+"Mathe": "Brüche Pythagoras a²+b²=c² Mitternacht Ableitung x^n->n*x^(n-1) Wahrscheinlichkeit",
+"Geographie": "Plattentektonik 5cm/Jahr Klima 30J CO2 280->420 Bevölkerung 8Mrd",
+"Biologie": "Mitochondrien Kraftwerk Fotosynthese 6CO2+6H2O->Zucker+O2 DNA A-T C-G 46 Chromosomen Mitose Meiose Evolution",
+"Physik": "Newton F=m*a Energie 0,5*m*v² Strom R=U/I P=U*I",
+"Chemie": "Proton Neutron Elektron PSE Ionen NaCl kovalent H2O pH 0-14 Säure+Base->Salz+Wasser Redox Oxidation Abgabe Reduktion Aufnahme"
+}
+
+geschichte_themen = {
+"französische revolution": "FRANZ REV 1789: 1.Stand 1% 10% Land keine Steuern 2.Stand 2% 20% Land keine Steuern 3.Stand 97% zahlt alles! Ludwig XVI pleite Hunger Aufklärung! 14.7. Bastille 26.8. Menschenrechte 21.1.93 Ludwig geköpft Robespierre 40k Tote 1799 Napoleon!",
+"1 weltkrieg": "1.WK 1914-18: Sarajevo 28.6.14 Princip erschießt Franz Ferdinand! Schützengraben Verdun 700k! 11.11.18 Ende Versailles 28.6.19 132Mrd 17Mio Tote!",
+"2 weltkrieg": "2.WK 1939-45: 1.9.39 Polen 1940 Frankreich 22.6.41 Russland 7.12.41 Pearl Harbor Holocaust 6Mio Auschwitz Wannsee 20.1.42 Stalingrad D-Day 6.6.44 8.5.45 Kapitulation Hiroshima 6.8.45 140k Nagasaki 9.8. 70k 60Mio Tote!",
+"kalter krieg mauer ddr brd": "KALTER KRIEG: NATO 49 Warschauer Pakt 55 Mauer 13.8.61-9.11.89 28J 155km 140 Tote Kuba 62 Vietnam 65-75 Brandt Ostpolitik Gorbatschow Montagsdemos Mauerfall 9.11.89 3.10.90 Einheit BRD 23.5.49 DDR 7.10.49!",
+"usa": "USA: 1776 Unabhängigkeit Washington 1861-65 Bürgerkrieg Lincoln Sklaverei Ende Pearl Harbor 7.12.41 Mondlandung 20.7.69 Armstrong 50 Staaten!",
+"adolf hitler nationalsozialismus": "ADOLF HITLER 1889-1945: Geb 20.4.1889 Braunau Österreich Maler gescheitert 1.WK Soldat NSDAP 1920 1923 Putsch München Gefängnis Mein Kampf 1933 Machtergreifung 30.1.33 Reichskanzler Ermächtigungsgesetz Diktator Führer Gleichschaltung Propaganda Goebbels SS Himmler Gestapo Juden Verfolgung Nürnberger Gesetze 1935 Kristallnacht 9.11.38 1939-45 2.WK Holocaust 6Mio Juden Auschwitz Selbstmord 30.4.45 Berlin Bunker! Fakten: Diktatur 1933-45 totalitär Autobahn Propaganda Olympiade 36 aber Krieg Völkermord!"
+}
+
+# HAUPTSUCHE ANZEIGE
+if thema:
     st.write("---")
+    st.markdown(f"### 🔍 Alle Fakten für '{thema}' aus Internet:")
 
-    # FRANZÖSISCH - DEIN ALTER CODE
-    if sprache == "Französisch":
-        if "Pronomen" in thema:
-            st.write("je tu il elle nous vous ils")
-            st.write("le la lui y en VOR Verb! Je le vois!")
-            st.write("Reihenfolge me le lui y en + VERB")
-            st.write("mon ma mes, le mien, qui que ou dont")
-        elif "Direkte" in thema:
-            st.write("Il dit: Je suis malade")
-            st.write("Il dit qu'il est malade")
-            st.write("il a dit-> Present->Imparfait, Futur->Conditionnel")
-            st.write("Ou->ou, Que->ce que, JaNein->si, Befehl de+Inf")
-        elif "le, la" in thema:
-            st.write("le la COD, lui leur COI, y Ort, en Menge")
-        elif "Zeiten" in thema:
-            st.write("Futur proche Je vais manger")
-            st.write("Futur simple parlerai serai aurai irai")
-            st.write("Passe J'ai mange, Imparfait Je parlais")
-        elif "VOKABELN" in thema:
-            st.write("bonjour merci oui non, homme femme garcon fille")
-            st.write("etre avoir faire aller vouloir dire voir")
-            st.write("ecole livre professeur, pain eau manger boire")
-            st.write("mais parce que tres beaucoup deja toujours")
+    with st.spinner("Suche bei Google, Wikipedia, DuckDuckGo..."):
+        alle = multi_suche(thema)
+
+    if alle:
+        for erg in alle:
+            st.markdown(f'<div class="result-box"><b>🌐 {erg["quelle"]}: {erg["titel"]}</b><br>{erg["text"]}</div>', unsafe_allow_html=True)
+            if erg["link"]:
+                st.markdown(f"[🔗 Mehr: {erg['link']}]({erg['link']})")
+            st.write("")
+    else:
+        st.warning(f"Kein Internet Artikel direkt gefunden für '{thema}' - versuche anderen Begriff oder schau unten bei lokalen Fächern")
+
+    st.write("---")
+    s = thema.lower()
+    # Lokal auch suchen
+    for name, text in faecher.items():
+        if s in text.lower() or s in name.lower():
+            st.markdown(f"**📚 Lokal {name}:**")
+            st.write(text)
+            st.write("---")
+    for g_name, g_text in geschichte_themen.items():
+        if s in g_name or s in g_text.lower():
+            st.markdown(f"**📚 Lokal Geschichte {g_name}:**")
+            st.write(g_text)
+            st.write("---")
+
+st.write("---")
+st.markdown("### 📖 Alle 12 Fächer:")
+
+cols = st.columns(3)
+fach_liste = ["Französisch","Spanisch","Englisch","Italienisch","Latein","Deutsch","Mathe","Geschichte","Geographie","Biologie","Physik","Chemie"]
+
+for i, fach_name in enumerate(fach_liste):
+    col = cols[i % 3]
+    if col.button(fach_name, key=f"btn_{fach_name}"):
+        st.session_state['fach'] = fach_name
+
+if 'fach' in st.session_state:
+    st.write("---")
+    if st.session_state['fach'] == "Geschichte":
+        st.markdown("## 📚 Geschichte - Mit Internet Suche!")
+        st.markdown('<div class="history-box">', unsafe_allow_html=True)
+        st.markdown("Suche auch bei Google + Wikipedia! z.B. Adolf Hitler, Mauer, DDR, USA, 2 weltkrieg, industrialisierung")
+        gesch_suche = st.text_input("Geschichte Thema suchen (Internet + lokal):", placeholder="z.B. Adolf Hitler, Mauer, DDR, USA, Revolution...", key="gesch")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        if gesch_suche:
+            st.markdown(f"### Internet Fakten für '{gesch_suche}':")
+            with st.spinner("Suche im Internet..."):
+                internet = multi_suche(gesch_suche)
+            if internet:
+                for erg in internet:
+                    st.info(f"**{erg['quelle']}: {erg['titel']}**\n\n{erg['text']}\n\n{erg['link']}")
+            else:
+                st.warning("Kein Internet Ergebnis - zeige lokale Fakten:")
+
+            st.write("---")
+            st.markdown("### Lokale Fakten:")
+            s2 = gesch_suche.lower()
+            found = False
+            for g_name, g_text in geschichte_themen.items():
+                if s2 in g_name or s2 in g_text.lower():
+                    st.markdown(f"**{g_name.upper()}**")
+                    st.write(g_text)
+                    st.write("---")
+                    found = True
+            if not found and not internet:
+                st.error("Nichts gefunden - versuche Hitler, Mauer, DDR, USA, Revolution, Weltkrieg")
         else:
-            st.write("un une des, le la les, ne pas, Est-ce que")
+            g_cols = st.columns(2)
+            for j, g_name in enumerate(geschichte_themen.keys()):
+                if g_cols[j % 2].button(g_name, key=f"g_{g_name}"):
+                    st.session_state['gesch_thema'] = g_name
+            if 'gesch_thema' in st.session_state:
+                st.write("---")
+                st.markdown(f"## {st.session_state['gesch_thema']}")
+                st.write(geschichte_themen[st.session_state['gesch_thema']])
+                with st.spinner("Hole mehr Fakten aus Internet..."):
+                    more = multi_suche(st.session_state['gesch_thema'])
+                    for erg in more:
+                        st.info(f"**{erg['quelle']}:** {erg['text'][:500]}...")
 
-    # SPANISCH VOLL
-    elif "Spanisch" in sprache:
-        if "Pronomen" in thema:
-            st.subheader("SPANISCH PRONOMEN VOLL")
-            st.write("WAS: Ersetzt Nomen")
-            st.write("Personal: yo tu el ella nosotros vosotros ellos")
-            st.write("Objekt direkt: me te lo la nos os los las")
-            st.write("WANN: Wen? Was? Ohne a")
-            st.write("Lo veo = Ich sehe ihn (Film)")
-            st.write("La veo = Ich sehe sie")
-            st.write("Objekt indirekt: me te le nos os les")
-            st.write("WANN: Wem? Mit a bei Person")
-            st.write("Le hablo = Ich spreche mit ihm")
-            st.write("Les doy = Ich gebe ihnen")
-            st.write("WICHTIG: le wird zu se vor lo!")
-            st.write("Le lo doy -> Se lo doy = Ich gebe es ihm")
-            st.write("Reihenfolge: me te se lo le + VERB")
-            st.write("Me lo da, Te lo digo")
-            st.write("Possessiv: mi tu su nuestro vuestro su")
-            st.write("mi libro, mis libros")
-            st.write("Relativ: que der, quien wer, donde wo")
-            st.write("cuyo dessen: el hombre cuyo libro")
+    else:
+        st.markdown(f"## {st.session_state['fach']}")
+        st.write(faecher[st.session_state['fach']])
 
-        elif "Direkte" in thema:
-            st.subheader("INDIREKTE REDE SPANISCH")
-            st.write("Direkt: Dice: Estoy enfermo")
-            st.write("Indirekt Praesens: Dice que esta enfermo")
-            st.write("Zeit bleibt bei dice!")
-            st.write("Indirekt Vergangenheit: Dijo que...")
-            st.write("WANN Zeit ändern:")
-            st.write("Presente->Imperfecto: estoy->estaba")
-            st.write("Indefinido->Pluscuamperfecto: fui->habia sido")
-            st.write("Futuro->Condicional: ire->iria")
-            st.write("Fragen: Donde vas?->donde iba")
-            st.write("Que haces?->lo que hacia")
-            st.write("Vienes?->si venia")
-            st.write("Befehl: Ven!->que viniera / de venir")
-            st.write("Me dice que venga = Er sagt ich soll kommen")
+    if st.button("❌ Schließen"):
+        del st.session_state['fach']
+        if 'gesch_thema' in st.session_state:
+            del st.session_state['gesch_thema']
+        st.rerun()
 
-        elif "Objektpronomen" in thema:
-            st.subheader("lo le la - UNTERSCHIED!")
-            st.write("lo = ihn/es direkt")
-            st.write("Veo el libro->Lo veo")
-            st.write("le = ihm indirekt")
-            st.write("Hablo a Juan->Le hablo")
-            st.write("Aber Achtung: In Spanien oft le fuer Person!")
-            st.write("Le vi a Juan = Ich sah Juan (leismo)")
-            st.write("Regel Schule: lo fuer Sache, le fuer Person mit a")
-            st.write("y/en gibt es NICHT! Stattdessen:")
-            st.write("y -> alli, ahi: Vas a Paris? Voy alli")
-            st.write("en -> de ello: Hablas de Juan? Hablo de el")
-
-        elif "Zeiten" in thema:
-            st.subheader("ZEITEN SPANISCH VOLL")
-            st.write("Futur: Infinitiv+Endung e as a emos eis an")
-            st.write("hablar->hablare hablaras hablara")
-            st.write("comer->comere, vivir->vivire")
-            st.write("Irregular: tener->tendre, hacer->hare")
-            st.write("decir->dire, venir->vendre, poder->podre")
-            st.write("Futur nah: ir a + Inf: Voy a comer")
-            st.write("Preterito Indefinido: hable hablaste hablo")
-            st.write("Imperfecto: hablaba hablabas hablaba")
-            st.write("Unterschied: Indefinido einmalig, Imperf immer")
-            st.write("Ayer llovio (einmal), Cuando era nino llovia (immer)")
-            st.write("Perfekt: he hablado, Plusquam: habia hablado")
-            st.write("Subjuntivo: quiero que hables!")
-            st.write("WANN: Wunsch, Zweifel, nach que, Emotion")
-
-        elif "Ser Estar" in thema:
-            st.subheader("SER vs ESTAR + POR PARA")
-            st.write("SER = was etwas IST permanent")
-            st.write("Soy aleman, Es grande, Son las 3")
-            st.write("ESTAR = wo/wie etwas IST Zustand/Ort")
-            st.write("Estoy cansado, Estoy en casa, Esta roto")
-            st.write("Trick: ESTAR Ort und Zustand!")
-            st.write("POR = durch, wegen, für Zeit, Tausch")
-            st.write("Gracias por todo, Por la mañana")
-            st.write("PARA = für Zweck, Ziel, Empfänger")
-            st.write("Esto es para ti, Para comer, Para mañana")
-
-        elif "VOKABELN" in thema:
-            st.write("hola gracias si no, hombre mujer chico chica")
-            st.write("ser estar tener hacer ir querer poder decir ver")
-            st.write("escuela libro pan agua comer beber")
-            st.write("pero porque muy mucho ya siempre con sin para")
-
-        else:
-            st.write("un una unos unas, el la los las")
-            st.write("no hablo, no nunca, no nada")
-
-    # ITALIENISCH VOLL
-    elif "Italienisch" in sprache:
-        if "Pronomen" in thema:
-            st.subheader("ITALIENISCH PRONOMEN VOLL")
-            st.write("Personal: io tu lui lei noi voi loro")
-            st.write("Direkt: mi ti lo la ci vi li le")
-            st.write("lo=ihn, la=sie, li=sie m Plural, le=sie f Plural")
-            st.write("Lo vedo = Ich sehe ihn")
-            st.write("Indirekt: mi ti gli le ci vi gli")
-            st.write("gli=ihm, le=ihr, gli=ihnen (alle!)")
-            st.write("Le parlo = Ich spreche mit ihr")
-            st.write("Gli parlo = Ich spreche mit ihm/ihnen")
-            st.write("gli + lo -> glielo! Glielo do = Ich gebe es ihm")
-            st.write("WICHTIG: ci und ne wie y und en!")
-            st.write("ci = dort, hier, daran (wie y)")
-            st.write("Vado a Roma->Ci vado = Ich gehe dorthin")
-            st.write("Ci penso = Ich denke daran")
-            st.write("ne = davon, welche (wie en)")
-            st.write("Vuoi del pane? Ne voglio due = Ich will 2 davon")
-            st.write("Ne parlo = Ich spreche davon")
-            st.write("Reihenfolge: mi lo gli ci ne + VERB")
-            st.write("Me lo da, Ce ne sono due")
-            st.write("Possessiv: mio tuo suo nostro vostro loro")
-            st.write("Relativ: che, cui, dove, il cui dessen")
-
-        elif "Direkte" in thema:
-            st.subheader("INDIREKTE REDE ITALIENISCH")
-            st.write("Direkt: Dice: Sono malato")
-            st.write("Indirekt: Dice che e malato")
-            st.write("Zeit bleibt bei dice presente")
-            st.write("Bei ha detto: Zeit ändern!")
-            st.write("Presente->Imperfetto: sono->era")
-            st.write("Passato->Trapassato: ho fatto->avevo fatto")
-            st.write("Futuro->Condizionale: verro->sarebbe venuto")
-            st.write("Fragen: Dove vai?->dove andavo")
-            st.write("Che fai?->cio che facevo")
-            st.write("Vieni?->se venivo")
-            st.write("Befehl: Vieni!->di venire / che venisse")
-
-        elif "Objektpronomen" in thema:
-            st.subheader("ci ne - WIE y en!")
-            st.write("Franz y = Ital ci = Span alli")
-            st.write("Franz en = Ital ne")
-            st.write("Gleiches System! Nur anderes Wort!")
-            st.write("Franz J'y vais = Ital Ci vado = Span Voy alli")
-            st.write("Franz J'en veux 2 = Ital Ne voglio 2")
-            st.write("Franz J'en parle = Ital Ne parlo")
-            st.write("Das musst du für Prüfung wissen!")
-
-        elif "Zeiten" in thema:
-            st.subheader("ZEITEN ITALIENISCH VOLL")
-            st.write("Futur: Inf ohne e + o ai a emo ete anno")
-            st.write("parlare->parlero parlerai parlera")
-            st.write("avere->avro, essere->saro, andare->andro")
-            st.write("fare->faro, venire->verro, vedere->vedro")
-            st.write("Futur nah: stare per + Inf: Sto per mangiare")
-            st.write("Passato prossimo: ho parlato, sono andato")
-            st.write("14 Verben mit essere wie Franz etre!")
-            st.write("andare venire entrare uscire restare etc")
-            st.write("Imperfetto: parlavo parlavi parlava")
-            st.write("Perf=einmalig, Imperf=immer wie Span/Franz")
-            st.write("Ieri ha piovuto, Da bambino pioveva sempre")
-            st.write("Trapassato: avevo parlato")
-            st.write("Congiuntivo: voglio che tu parli!")
-
-        elif "Ser Estar" in thema:
-            st.subheader("ESSERE vs STARE + ARTIKEL")
-            st.write("ESSERE = sein permanent wie ser")
-            st.write("Sono tedesco, E grande")
-            st.write("STARE = Ort, Zustand, gerade dabei wie estar")
-            st.write("Sto a casa, Sto male, Sto mangiando=Ich esse gerade")
-            st.write("Artikel: il lo la i gli le, un uno una")
-            st.write("il libro, lo studente, l'amico, la casa")
-            st.write("Preposizioni articolate: al, del, nel, sul = a+il etc")
-
-        elif "VOKABELN" in thema:
-            st.write("ciao grazie si no, uomo donna ragazzo ragazza")
-            st.write("essere avere fare andare volere potere dire vedere")
-            st.write("scuola libro pane acqua mangiare bere")
-            st.write("ma perche molto gia sempre con senza per, ci ne!")
-
-        else:
-            st.write("il la lo, un una, non parlo, non mai niente")
-
-    # LATEIN / DEUTSCH KURZ
-    elif sprache == "Latein":
-        if "VOKABELN" in thema:
-            st.write("esse habere dicere facere videre audire ire venire")
-            st.write("homo vir femina rex populus urbs bellum amicus")
-        else:
-            st.write("Latein: AcI, Kasus, Deklinationen, Konjunktionen")
-
-    elif sprache == "Deutsch":
-        if "VOKABELN" in thema:
-            st.write("behaupten aeussern vermuten hervorragend")
-            st.write("Meiner Meinung nach, Im Gegensatz zu")
-        else:
-            st.write("Konjunktiv I: er sei habe solle, Nebensatz Verb Ende")
-
-    st.success("Fertig!")
-
-st.caption("v10.0 VOLL - Franz Latein Span Ital Deutsch")
+st.caption("app.py - Sucht jetzt bei Wikipedia DE + EN + DuckDuckGo (Google ähnlich) + lokal = viele Fakten!")
