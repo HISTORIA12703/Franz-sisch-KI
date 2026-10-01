@@ -149,6 +149,3 @@ if frage:
         st.write(antwort)
     st.session_state['chat'].append({"role":"assistant","content":antwort})
     st.rerun()
-    streamlit
-requests
-g4f
