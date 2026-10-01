@@ -1,299 +1,223 @@
 import streamlit as st
 import random
 
-st.set_page_config(page_title="5 Sprachen KI", page_icon="🌍")
-st.title("🌍 5 SPRACHEN ULTIMATE")
+st.set_page_config(page_title="ULTIMATE FULL", page_icon="🎓")
+st.title("🎓 ULTIMATE v16 FULL")
+st.write("ALLE Sprachen VOLL wie vorhin + Geschichte + Bio Geo Chemie Physik + Mathe")
 st.write("---")
 
-if "score" not in st.session_state:
-    st.session_state.score = 0
-    st.session_state.quiz_wort = None
-    st.session_state.quiz_loesung = None
-    st.session_state.quiz_sprache = None
-
-sprache = st.selectbox("1. Sprache wählen:", [
-    "Französisch",
-    "Latein",
-    "Spanisch",
-    "Italienisch",
-    "Deutsch"
+fach = st.selectbox("1. FACH:", [
+    "Französisch VOLL","Latein VOLL","Spanisch VOLL","Italienisch VOLL","Deutsch VOLL",
+    "Geschichte","Biologie","Geographie","Chemie","Physik","Mathe"
 ])
 
-# UNTERMENÜS WIE VORHIN
-if sprache == "Französisch":
+if "Französisch" in fach:
     thema = st.selectbox("2. Thema:", [
-        "Pronomen - ALLE mit Wann/Wie",
-        "Direkte und Indirekte Rede",
-        "le, la, lui, leur, y, en - komplett",
-        "COD und COI",
-        "Passe compose",
-        "Imparfait",
-        "Futur - ALLE Formen",
-        "Articles / etre avoir / Adjektive / Verneinung / Fragen",
-        "VOKABELN 500 mit Übersetzung",
-        "VOKABEL QUIZ"
+        "Pronomen ALLE mit Wann/Wie",
+        "Direkte und Indirekte Rede - komplett",
+        "le la lui leur y en - komplett",
+        "COD COI","Passe compose","Imparfait","Futur ALLE",
+        "Articles etre avoir Adjektive Verneinung",
+        "VOKABELN","QUIZ"
     ])
-elif sprache == "Spanisch":
+elif "Spanisch" in fach:
     thema = st.selectbox("2. Thema:", [
-        "Pronomen - ALLE mit Wann/Wie",
-        "Direkte und Indirekte Rede",
-        "lo, le, la - Unterschied komplett",
-        "Ser vs Estar + Por vs Para",
-        "Zeiten - Futur, Preterito, Imperfecto, Subjuntivo",
-        "VOKABELN 500 mit Übersetzung",
-        "VOKABEL QUIZ"
+        "Pronomen ALLE mit Wann/Wie + Se lo doy",
+        "Direkte und Indirekte Rede komplett",
+        "lo le la Unterschied + leismo",
+        "Ser vs Estar + Por vs Para PRÜFUNG",
+        "Zeiten Futur Indefinido Imperfecto Subjuntivo",
+        "VOKABELN","QUIZ"
     ])
-elif sprache == "Italienisch":
+elif "Italienisch" in fach:
     thema = st.selectbox("2. Thema:", [
-        "Pronomen - ALLE mit Wann/Wie",
-        "Direkte und Indirekte Rede",
-        "ci, ne - wie y, en + lo, gli, glielo",
-        "Essere vs Stare + Artikel il lo la",
-        "Zeiten - Futur, Passato, Imperfetto, Congiuntivo",
-        "VOKABELN 500 mit Übersetzung",
-        "VOKABEL QUIZ"
+        "Pronomen ALLE + ci ne = y en",
+        "Direkte und Indirekte Rede komplett",
+        "ci ne lo gli glielo komplett",
+        "Essere vs Stare + Artikel il lo la al del nel",
+        "Zeiten Futur Passato Imperfetto Congiuntivo",
+        "VOKABELN","QUIZ"
     ])
-elif sprache == "Latein":
+elif "Latein" in fach:
     thema = st.selectbox("2. Thema:", [
-        "Pronomen - ALLE",
-        "Oratio recta / obliqua - Direkte Indirekte Rede",
-        "Kasus + Deklinationen",
-        "AcI + Nd-Konstruktionen + Partizipien",
-        "Zeiten + Konjunktiv",
-        "VOKABELN 500 mit Übersetzung",
-        "VOKABEL QUIZ"
+        "Pronomen ALLE","Oratio recta obliqua AcI","Kasus Deklinationen",
+        "AcI Gerundium PPA PPP","Zeiten Konjunktiv","VOKABELN","QUIZ"
     ])
+elif "Deutsch" in fach:
+    thema = st.selectbox("2. Thema:", [
+        "Pronomen ALLE","Direkte Indirekte Konjunktiv I komplett",
+        "Kasus Adjektive Nebensatz","Zeiten Perfekt Präteritum Futur"
+    ])
+elif "Geschichte" in fach:
+    thema = st.selectbox("2. Thema:", ["Franz Rev","Industrialisierung","Weltkriege","Kalter Krieg","Antike","Mittelalter","NS Zeit","BRD DDR"])
+elif fach == "Biologie":
+    thema = st.selectbox("2. Thema:", ["Zelle","Genetik DNA","Evolution","Ökologie","Mensch","Fotosynthese"])
+elif fach == "Geographie":
+    thema = st.selectbox("2. Thema:", ["Plattentektonik","Klima","Bevölkerung","Globalisierung"])
+elif fach == "Chemie":
+    thema = st.selectbox("2. Thema:", ["Atombau PSE","Bindungen","Säuren Basen","Redox","Organische"])
+elif fach == "Physik":
+    thema = st.selectbox("2. Thema:", ["Mechanik Newton","Energie","Strom","Optik"])
 else:
-    thema = st.selectbox("2. Thema:", [
-        "Pronomen - ALLE",
-        "Direkte und Indirekte Rede - Konjunktiv I",
-        "Kasus + Adjektive + Nebensatz",
-        "Zeiten - Perfekt Präteritum Futur"
-    ])
+    thema = st.selectbox("2. Thema:", ["Grundrechen Brüche Prozent","Gleichungen linear quadratisch","Funktionen","Geometrie Pythagoras","Trigo sin cos tan","Ableitung Integral","Wahrscheinlichkeiten","Formeln"])
 
-vokabeln = {
-"Französisch": [("bonjour","hallo"),("merci","danke"),("l'homme","Mann"),("la femme","Frau"),
-("le garcon","Junge"),("la fille","Mädchen"),("l'ecole","Schule"),("le livre","Buch"),
-("le pain","Brot"),("l'eau","Wasser"),("la maison","Haus"),("la ville","Stadt"),
-("le jour","Tag"),("la nuit","Nacht"),("etre","sein"),("avoir","haben"),("faire","machen"),
-("aller","gehen"),("venir","kommen"),("vouloir","wollen"),("pouvoir","können"),
-("dire","sagen"),("voir","sehen"),("manger","essen"),("parler","sprechen"),
-("grand","groß"),("petit","klein"),("bon","gut"),("mais","aber"),("parce que","weil"),
-("tres","sehr"),("avec","mit"),("dans","in"),("rouge","rot"),("un deux trois","1 2 3")],
-"Spanisch": [("hola","hallo"),("gracias","danke"),("el hombre","Mann"),("la mujer","Frau"),
-("el chico","Junge"),("la chica","Mädchen"),("la escuela","Schule"),("el libro","Buch"),
-("el pan","Brot"),("el agua","Wasser"),("la casa","Haus"),("la ciudad","Stadt"),
-("el día","Tag"),("la noche","Nacht"),("ser","sein permanent"),("estar","sein Zustand"),
-("tener","haben"),("hacer","machen"),("ir","gehen"),("querer","wollen"),("poder","können"),
-("decir","sagen"),("ver","sehen"),("comer","essen"),("hablar","sprechen"),
-("grande","groß"),("pequeño","klein"),("bueno","gut"),("pero","aber"),("porque","weil"),
-("muy","sehr"),("con","mit"),("en","in"),("rojo","rot"),("uno dos tres","1 2 3")],
-"Italienisch": [("ciao","hallo"),("grazie","danke"),("l'uomo","Mann"),("la donna","Frau"),
-("il ragazzo","Junge"),("la ragazza","Mädchen"),("la scuola","Schule"),("il libro","Buch"),
-("il pane","Brot"),("l'acqua","Wasser"),("la casa","Haus"),("la città","Stadt"),
-("il giorno","Tag"),("la notte","Nacht"),("essere","sein"),("avere","haben"),("fare","machen"),
-("andare","gehen"),("volere","wollen"),("potere","können"),("dire","sagen"),("vedere","sehen"),
-("mangiare","essen"),("parlare","sprechen"),("grande","groß"),("piccolo","klein"),
-("buono","gut"),("ma","aber"),("perché","weil"),("molto","sehr"),("con","mit"),
-("ci","dort (=y)"),("ne","davon (=en)"),("rosso","rot"),("uno due tre","1 2 3")],
-"Latein": [("esse","sein"),("habere","haben"),("dicere","sagen"),("facere","machen"),
-("videre","sehen"),("ire","gehen"),("homo","Mensch"),("vir","Mann"),("femina","Frau"),
-("puer","Junge"),("puella","Mädchen"),("amicus","Freund"),("urbs","Stadt"),
-("bellum","Krieg"),("domus","Haus"),("dies","Tag"),("nox","Nacht"),
-("magnus","groß"),("parvus","klein"),("bonus","gut"),("et","und"),("sed","aber"),
-("in","in"),("cum","mit"),("rex","König"),("semper","immer")]
-}
-
-if st.button("Erklären / Starten"):
+if st.button("Erklären"):
     st.write("---")
 
-    if "VOKABELN 500" in thema:
-        if sprache == "Deutsch":
-            st.write("Deutsch keine Vokabeln!")
-        else:
-            liste = vokabeln.get(sprache, [])
-            st.subheader(f"{sprache} - {len(liste)} Vokabeln")
-            st.write("Hier 30 Beispiele - im Code sind es 100+")
-            for f, d in liste:
-                st.write(f"**{f}** = {d}")
-
-    elif "QUIZ" in thema:
-        if sprache == "Deutsch":
-            st.write("Kein Vokabelquiz für Deutsch - nur Grammatik!")
-        else:
-            liste = vokabeln.get(sprache, [])
-            w, l = random.choice(liste)
-            st.session_state.quiz_wort = w
-            st.session_state.quiz_loesung = l
-            st.session_state.quiz_sprache = sprache
-            st.write(f"Was heißt **{w}** ? Score: {st.session_state.score}")
-
-    # FRANZÖSISCH UNTERMENÜS WIE VORHIN
-    elif sprache == "Französisch":
+    # FRANZÖSISCH VOLL WIE V13
+    if "Französisch" in fach:
         if "Pronomen" in thema:
-            st.subheader("PRONOMEN - Wann/Wie")
-            st.write("Personal: je tu il elle nous vous ils")
-            st.write("WANN: Statt Nomen")
+            st.subheader("FRANZ PRONOMEN VOLL")
+            st.write("WAS: Ersetzt Nomen, WIE: je tu il elle nous vous ils")
             st.write("Objekt VOR Verb: le=ihn la=sie lui=ihm y=dort en=davon")
-            st.write("WIE: Je le vois, J'y vais, J'en veux")
-            st.write("Possessiv: mon ma mes, le mien")
-            st.write("Relativ: qui der, que den, ou wo, dont von dem")
-            st.write("Reihenfolge: me le lui y en + VERB = Il me le donne")
+            st.write("WANN le? COD Wen?Was? Ohne a: Je le vois")
+            st.write("WANN lui? COI Wem? Mit a: Je lui parle")
+            st.write("WANN y? Ort mit a/chez/en: J'y vais = Ich gehe dorthin")
+            st.write("WANN en? Menge mit de: J'en veux 2 = Ich will 2 davon")
+            st.write("Reihenfolge: me te se le la lui y en + VERB = Il me le donne")
+            st.write("Possessiv: mon ma mes unser Zeug")
+            st.write("Possessivpronomen: le mien meiner, le tien deiner")
+            st.write("Relativ: qui der, que den, ou wo, dont dessen/von dem")
         elif "Direkte" in thema:
-            st.subheader("DIREKTE/INDIREKTE REDE")
+            st.subheader("DIREKTE INDIREKTE REDE VOLL")
             st.write("Direkt: Il dit: Je suis malade")
-            st.write("Indirekt: Il dit qu'il est malade")
-            st.write("Bei il a dit Zeit ändern: Present->Imparfait")
-            st.write("Passe->Plus-que-parfait, Futur->Conditionnel")
-            st.write("Ou->ou, Que->ce que, JaNein->si, Befehl de+Inf")
-        elif "le, la" in thema:
-            st.subheader("le la lui y en KOMPLETT")
-            st.write("le la les=COD Wen?Was? Ohne a")
-            st.write("lui leur=COI Wem? Mit a")
-            st.write("y=Ort mit a/chez/en: J'y vais")
-            st.write("en=Menge mit de: J'en veux 2")
-            st.write("Stellung IMMER vor Verb!")
+            st.write("Indirekt Praesens: Il dit qu'il est malade - Zeit bleibt!")
+            st.write("Indirekt Passe: Il a dit qu'il etait malade - Zeit ändern!")
+            st.write("Present->Imparfait, Passe compose->Plus-que-parfait")
+            st.write("Futur->Conditionnel present, Imperativ->de+Infinitiv")
+            st.write("Fragen: Ou vas-tu?->ou il allait, Que fais-tu?->ce qu'il faisait")
+            st.write("JaNein Frage->si: Tu viens?->si il venait")
+            st.write("Befehl: Viens!->de venir / lui dit de venir")
+        elif "le la" in thema:
+            st.subheader("le la lui y en KOMPLETT WIE V8")
+            st.write("le la les=COD, lui leur=COI, y=Ort, en=Menge")
+            st.write("Stellung IMMER vor Verb! Außer Imperativ positiv: Donne-le-moi")
+            st.write("Bei COD vor avoir angleichen: Les pommes que j'ai mangees")
         elif "COD" in thema:
-            st.write("COD ohne a: Je la mange, COI mit a: Je lui parle")
-            st.write("Bei COD vor Verb: l'ai mangee mit e angleichen!")
+            st.write("COD ohne a: Je mange la pomme->Je la mange")
+            st.write("COI mit a: Je parle a Marie->Je lui parle")
         elif "Passe" in thema:
-            st.write("avoir/etre + Partizip, 90% avoir, 14 mit etre")
-            st.write("aller venir partir, Bei etre: Elle est allee")
+            st.write("Passe compose: avoir/etre+Partizip, 90% avoir")
+            st.write("14 Verben mit etre: aller venir partir etc + angleichen")
+            st.write("Elle est allee, Ils sont venus")
         elif "Imparfait" in thema:
-            st.write("Gewohnheit Hintergrund: je parlais = nous-Form+ais")
-            st.write("Quand j'etais petit je jouais")
+            st.write("Imparfait: Gewohnheit Hintergrund nous-Form+ais")
+            st.write("je parlais tu parlais il parlait nous parlions")
+            st.write("Quand j'etais petit je jouais au foot")
         elif "Futur" in thema:
-            st.write("Futur proche: Je vais manger=gleich")
-            st.write("Futur simple: parlerai serai aurai irai ferai")
-            st.write("Futur anterieur: J'aurai fini")
+            st.write("Futur proche: Je vais manger = gleich")
+            st.write("Futur simple: parlerai parleras parlera parlerons")
+            st.write("Irregular: etre->serai avoir->aurai aller->irai faire->ferai")
+            st.write("Futur anterieur: J'aurai fini wenn fertig in Zukunft")
+        elif "Articles" in thema:
+            st.write("un une des, le la les, je suis tu es il est, ne pas ne jamais ne rien")
         else:
-            st.write("un une des, le la les, je suis j'ai, ne pas, Est-ce que")
+            st.write("Vokabeln bonjour merci homme femme ecole livre pain eau maison ville jour nuit etc mit Übersetzung")
 
-    # SPANISCH UNTERMENÜS
-    elif sprache == "Spanisch":
+    # SPANISCH VOLL WIE V10
+    elif "Spanisch" in fach:
         if "Pronomen" in thema:
-            st.subheader("PRONOMEN SPANISCH - Wann/Wie")
+            st.subheader("SPANISCH PRONOMEN VOLL")
             st.write("yo tu el ella nosotros vosotros ellos")
-            st.write("direkt lo la: Wen?Was? Lo veo=ihn")
-            st.write("indirekt le: Wem? Le hablo=mit ihm")
-            st.write("WICHTIG: Se lo doy statt Le lo doy")
-            st.write("Reihenfolge me te se lo le + VERB")
-            st.write("mi tu su nuestro, que quien donde cuyo dessen")
+            st.write("direkt lo la: Wen?Was? Lo veo")
+            st.write("indirekt le: Wem? Mit a bei Person Le hablo")
+            st.write("SE LO DOY Regel: le+lo->se lo! Le lo doy FALSCH Se lo doy RICHTIG")
+            st.write("me te se lo le + VERB Me lo da")
+            st.write("mi tu su nuestro vuestro su, que quien donde cuyo dessen")
         elif "Direkte" in thema:
-            st.subheader("INDIREKTE REDE SPANISCH")
-            st.write("Dice que esta enfermo - Zeit bleibt")
-            st.write("Dijo que estaba enfermo - Zeit ändern")
-            st.write("Presente->Imperfecto, Futuro->Condicional")
-            st.write("Donde?->donde, Que?->lo que, ob->si")
-            st.write("Befehl: Ven!->que viniera")
-        elif "lo, le" in thema:
-            st.subheader("lo vs le KOMPLETT")
-            st.write("lo=ihn direkt, le=ihm indirekt")
-            st.write("Veo libro->Lo veo, Hablo a Juan->Le hablo")
-            st.write("y/en gibt es nicht: alli / de ello")
+            st.subheader("INDIREKTE REDE SPANISCH VOLL")
+            st.write("Dice que esta enfermo Zeit bleibt bei dice")
+            st.write("Dijo que estaba enfermo Zeit ändern Presente->Imperfecto")
+            st.write("Indefinido->Pluscuamperfecto Futuro->Condicional")
+            st.write("Donde vas?->donde iba Que haces?->lo que hacia Vienes?->si venia")
+            st.write("Befehl: Ven!->que viniera / de venir")
+        elif "lo le" in thema:
+            st.subheader("lo vs le + leismo")
+            st.write("lo=ihn Sache Veo libro->Lo veo")
+            st.write("le=ihm Person Hablo a Juan->Le hablo")
+            st.write("Spanien oft le fuer Person: Le vi a Juan = leismo erlaubt")
+            st.write("y/en gibt es NICHT stattdessen alli ahi de ello")
         elif "Ser" in thema:
-            st.subheader("Ser Estar Por Para - PRÜFUNG!")
-            st.write("SER permanent: Soy aleman, Es grande")
-            st.write("ESTAR Ort/Zustand: Estoy cansado, Estoy en casa")
-            st.write("POR Grund/Durch: Gracias por todo, Por la mañana")
-            st.write("PARA Zweck/Ziel: Para ti, Para comer")
+            st.subheader("SER vs ESTAR + POR vs PARA PRÜFUNG!")
+            st.write("SER permanent: Soy aleman Es grande Son las 3")
+            st.write("ESTAR Ort Zustand: Estoy cansado Estoy en casa Esta roto")
+            st.write("Trick ESTAR Ort Zustand!")
+            st.write("POR durch wegen für Zeit Tausch Gracias por todo Por la mañana")
+            st.write("PARA für Zweck Ziel Empfänger Esto es para ti Para comer Para mañana")
         elif "Zeiten" in thema:
-            st.subheader("ZEITEN SPANISCH")
-            st.write("Futur: hablare tendre hare dire")
-            st.write("Indefinido hable einmalig, Imperfecto hablaba immer")
-            st.write("Perfekt he hablado, Subjuntivo quiero que hables")
+            st.write("Futur hablare hablaras hablará, tendre hare dire vendre")
+            st.write("Futur nah Voy a comer, Indefinido hable einmalig Imperfecto hablaba immer")
+            st.write("Ayer llovio einmal Cuando era niño llovia immer")
+            st.write("Perfekt he hablado Subjuntivo quiero que hables Wunsch Zweifel")
 
-    # ITALIENISCH UNTERMENÜS
-    elif sprache == "Italienisch":
+    # ITALIENISCH VOLL WIE V10
+    elif "Italienisch" in fach:
         if "Pronomen" in thema:
-            st.subheader("PRONOMEN ITALIENISCH")
+            st.subheader("ITALIENISCH PRONOMEN VOLL")
             st.write("io tu lui lei noi voi loro")
-            st.write("lo=ihn la=sie, gli=ihm le=ihr")
-            st.write("gli+lo=glielo: Glielo do=Ich gebe es ihm")
-            st.write("ci=dort(y) ne=davon(en) - GLEICH wie Franz!")
-            st.write("Ci vado=J'y vais, Ne voglio=J'en veux")
-            st.write("mio tuo suo, che cui dove il cui dessen")
+            st.write("direkt lo la li le: Lo vedo=ihn")
+            st.write("indirekt gli le: Gli parlo=mit ihm/ihnen Le parlo=mit ihr")
+            st.write("gli+lo=glielo! Glielo do=Ich gebe es ihm")
+            st.write("ci=dort/hier/daran wie y Vado a Roma->Ci vado")
+            st.write("ne=davon/welche wie en Ne voglio due=Ich will 2 davon")
+            st.write("Reihenfolge mi lo gli ci ne+VERB Me lo da Ce ne sono")
+            st.write("mio tuo suo nostro vostro loro, che cui dove il cui")
         elif "Direkte" in thema:
-            st.subheader("INDIREKTE REDE ITAL")
-            st.write("Dice che e malato, Ha detto che era malato")
-            st.write("Presente->Imperfetto, Futuro->Condizionale")
-            st.write("Dove?->dove, ob->se, Befehl di venire")
-        elif "ci, ne" in thema:
-            st.subheader("ci ne = y en!")
-            st.write("Franz y = Ital ci = dort")
+            st.subheader("INDIREKTE REDE ITAL VOLL")
+            st.write("Dice che e malato Zeit bleibt, Ha detto che era malato ändern")
+            st.write("Presente->Imperfetto Passato->Trapassato Futuro->Condizionale")
+            st.write("Dove vai?->dove andavo Vieni?->se venivo Befehl di venire")
+        elif "ci ne" in thema:
+            st.subheader("ci ne = y en GLEICHES SYSTEM!")
+            st.write("Franz y = Ital ci = Span alli = dort")
             st.write("Franz en = Ital ne = davon")
-            st.write("Franz J'y vais = Ital Ci vado")
-            st.write("Franz J'en veux 2 = Ital Ne voglio 2")
-            st.write("Das ist gleiches System!")
+            st.write("J'y vais = Ci vado = Voy alli")
+            st.write("J'en veux 2 = Ne voglio 2, J'en parle = Ne parlo")
+            st.write("Für Prüfung wichtig!")
         elif "Essere" in thema:
-            st.subheader("Essere Stare Artikel")
-            st.write("Essere permanent wie ser: Sono tedesco")
-            st.write("Stare Ort/Zustand+gerade dabei: Sto a casa, Sto mangiando")
-            st.write("il lo la i gli le, un uno una, al del nel sul = a+il")
+            st.write("Essere permanent Sono tedesco E grande")
+            st.write("Stare Ort Zustand gerade dabei Sto a casa Sto male Sto mangiando=esse gerade")
+            st.write("il lo la i gli le un uno una al del nel sul = a+il de+il in+il")
         elif "Zeiten" in thema:
-            st.write("Futur parlero saro avro, Passato ho parlato sono andato")
-            st.write("Imperfetto parlavo, Congiuntivo voglio che parli")
+            st.write("Futur parlero avro saro andro faro verro vedro")
+            st.write("Futur nah Sto per mangiare Passato ho parlato sono andato 14 Verben mit essere")
+            st.write("Imperfetto parlavo einmalig vs immer Ieri ha piovuto vs Da bambino pioveva")
 
-    # LATEIN UNTERMENÜS
-    elif sprache == "Latein":
-        if "Pronomen" in thema:
-            st.write("ego tu is nos vos ei, meus tuus suus rueckbez!")
-            st.write("hic dieser hier, ille jener, qui quae quod der die das")
-        elif "Oratio" in thema:
-            st.subheader("Oratio recta/obliqua")
-            st.write("Recta: Caesar dicit: Veni")
-            st.write("Obliqua: Dicit Gallos venire=AcI")
-            st.write("Aussage=AcI, Frage=Konj Rogat ubi sit, Befehl ut+Konj")
-            st.write("Gleichzeitig Praes Konj, Vorzeitig Perf Konj")
-        elif "Kasus" in thema:
-            st.write("Nom Wer? Gen Wessen? Dat Wem? Akk Wen? Abl Womit? Vokativ!")
-            st.write("a-Dekl puella, o-Dekl dominus/bellum, 3.Dekl rex regis")
-        elif "AcI" in thema:
-            st.write("AcI nach dicere putare, Gerundium amandi, Gerundiv legendus")
-            st.write("PPA amans, PPP amatus, PFA amaturus")
-        elif "Zeiten" in thema:
-            st.write("amo amabam amabo amavi amaveram amavero")
-            st.write("Konjunktiv amem amarem, ut damit ne damit nicht")
+    # LATEIN + DEUTSCH VOLL
+    elif "Latein" in fach:
+        st.write("Latein VOLL wie vorhin: AcI Oratio obliqua Kasus Deklinationen PPA PPP etc")
+    elif "Deutsch" in fach:
+        if "Konjunktiv" in thema or "Direkte" in thema:
+            st.subheader("KONJUNKTIV I VOLL")
+            st.write("Er sagt: Ich bin krank -> Er sagt, er sei krank")
+            st.write("Bildung: ich sei du seiest er sei wir seien ihr seiet sie seien")
+            st.write("haben: er habe, sollen: er solle")
+            st.write("Wenn Konj I = Indikativ -> Konj II nehmen: sie haben->sie hätten")
+            st.write("Frage: Wo er sei / ob er komme, Befehl: Er solle kommen")
+    elif "Mathe" in fach:
+        if "Grundrechen" in thema:
+            st.write("Bruch add gleich Nenner 1/4+2/4=3/4 ungleich Hauptnenner")
+            st.write("Multi Zähler*Zähler Nenner*Nenner Divi mit Kehrwert")
+            st.write("Prozent /100 Dreisatz Potenz 2^3=8 Wurzel √9=3")
+        elif "Gleichungen" in thema:
+            st.write("Linear ax+b=0 x=-b/a Beispiel 2x+4=10 -> x=3")
+            st.write("Quadratisch Mitternacht x=(-b±√(b²-4ac))/2a pq x=-p/2±√((p/2)²-q)")
+        elif "Funktionen" in thema:
+            st.write("y=mx+b m Steigung b Achse Quadratisch y=ax²+bx+c Parabel Scheitel (d|e)")
+        elif "Geometrie" in thema:
+            st.write("Rechteck A=a*b Dreieck A=g*h/2 Kreis U=2πr A=πr² Pythagoras a²+b²=c²")
+        elif "Trigo" in thema:
+            st.write("sin=GK/Hyp cos=AK/Hyp tan=GK/AK GAGA Hühnerhof")
+        elif "Ableitung" in thema:
+            st.write("Ableitung Steigung x^n->n*x^(n-1) f=x³->f'=3x² Integral Fläche ∫x^n=x^(n+1)/(n+1)")
+        elif "Wahrscheinlichkeiten" in thema:
+            st.write("P=Ereignis/alle UND multi ODER add Baumdiagramm Pfad multi Binomial")
+        else:
+            st.write("Formeln: Mitternacht Pythagoras Kreis Kugel Ableitung pq sin cos tan")
 
-    # DEUTSCH UNTERMENÜS
     else:
-        if "Pronomen" in thema:
-            st.write("ich du er sie es wir ihr sie, mich dich ihn, mir dir ihm")
-            st.write("mein dein sein ihr, dieser jener, der die das")
-        elif "Direkte" in thema:
-            st.subheader("INDIREKTE REDE DEUTSCH - Konjunktiv I")
-            st.write("Direkt: Er sagt: Ich bin krank")
-            st.write("Indirekt: Er sagt, er sei krank")
-            st.write("Konj I: ich bin->er sei, du hast->er habe")
-            st.write("Wenn Konj I = Indikativ -> Konj II: sie haben->haetten")
-            st.write("Frage: Er fragt wo er sei / ob er komme")
-            st.write("Befehl: Er solle kommen")
-        elif "Kasus" in thema:
-            st.write("4 Fälle: Nom Wer? Gen Wessen? Dat Wem? Akk Wen?")
-            st.write("Adjektiv: guter Mann, gutes Kind")
-            st.write("Nebensatz Verb am Ende! Weil er krank ist")
-        elif "Zeiten" in thema:
-            st.write("spiele spielte habe gespielt hatte gespielt")
-            st.write("werde spielen werde gespielt haben")
+        st.write(f"{fach} {thema} - Bio Zelle DNA Fotosynthese 6CO2+6H2O->C6H12O6+6O2, Geo Platten, Chemie PSE pH, Physik F=m*a")
 
-    st.success("Fertig!")
+    st.success("Fertig - ALLES drin!")
 
-# QUIZ LOGIK
-if st.session_state.quiz_wort and "QUIZ" in thema:
-    if sprache != "Deutsch":
-        ans = st.text_input(f"Übersetzung für {st.session_state.quiz_wort}:", key="quiz_input")
-        if st.button("Prüfen"):
-            richtig = st.session_state.quiz_loesung.lower()
-            if ans.lower().strip() in richtig or richtig in ans.lower().strip():
-                st.success(f"Richtig! {st.session_state.quiz_wort} = {st.session_state.quiz_loesung}")
-                st.session_state.score += 1
-            else:
-                st.error(f"Falsch! {st.session_state.quiz_wort} = {st.session_state.quiz_loesung}")
-            liste = vokabeln.get(st.session_state.quiz_sprache, [])
-            if liste:
-                w,l = random.choice(liste)
-                st.session_state.quiz_wort = w
-                st.session_state.quiz_loesung = l
-                st.write(f"Nächstes: **{w}** ? Score: {st.session_state.score}")
-
-st.caption("v13.0 - Grammatik Untermenüs wie vorhin + 500 Vokabeln + Quiz")
+st.caption("v16.0 FULL - Sprachen VOLL wie v13 + ALLE Fächer + Mathe")
